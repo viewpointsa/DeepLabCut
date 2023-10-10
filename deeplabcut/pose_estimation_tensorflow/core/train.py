@@ -307,8 +307,11 @@ def train(
             graph = tf.compat.v1.get_default_graph()
             output_name = ""
             for op in graph.get_operations():
-                logging.info(op.name)
+                #logging.info(op.name)
                 output_name = op.name
+            logging.info("output_name=%s" % op.name)
+            
+            output_name = "pose"
         
             # We use a built-in TF helper to export variables to constants
             output_graph_def = tf.compat.v1.graph_util.convert_variables_to_constants(
