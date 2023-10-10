@@ -272,7 +272,7 @@ def train(
 
     print("Training parameter:")
     print(cfg)
-    print("Starting training....")
+    print("Starting training...")
     max_iter += start_iter  # max_iter is relative to start_iter
     for it in range(start_iter, max_iter + 1):
         if "efficientnet" in net_type:
@@ -303,6 +303,23 @@ def train(
         if (it % save_iters == 0 and it != start_iter) or it == max_iter:
             model_name = cfg["snapshot_prefix"]
             saver.save(sess, model_name, global_step=it)
+                        
+            graph = tf.compat.v1.get_default_graph()
+            output_name = ""
+            for op in graph.get_operations():
+                logging.info(op.name)
+                output_name = op.name
+        
+            # We use a built-in TF helper to export variables to constants
+            output_graph_def = tf.compat.v1.graph_util.convert_variables_to_constants(
+              sess, # The session is used to retrieve the weights
+              graph.as_graph_def(), # The graph_def is used to retrieve the nodes 
+              [output_name] # The output node names are used to select the usefull nodes
+              ) 
+            # Finally we serialize and dump the output graph to the filesystem
+            with tf.compat.v1.gfile.GFile("frozen_model.pb", "wb") as f:
+              f.write(output_graph_def.SerializeToString())
+            logging.info("%d ops in the final graph." % len(output_graph_def.node))
 
     lrf.close()
     sess.close()
