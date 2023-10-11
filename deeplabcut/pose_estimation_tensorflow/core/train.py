@@ -303,7 +303,7 @@ def train(
         if (it % save_iters == 0 and it != start_iter) or it == max_iter:
             model_name = cfg["snapshot_prefix"]
             saver.save(sess, model_name, global_step=it)
-                        
+            '''            
             graph = tf.compat.v1.get_default_graph()
             output_name = ""
             for op in graph.get_operations():
@@ -323,6 +323,7 @@ def train(
             with tf.compat.v1.gfile.GFile("frozen_model.pb", "wb") as f:
               f.write(output_graph_def.SerializeToString())
             logging.info("%d ops in the final graph." % len(output_graph_def.node))
+            '''
 
     lrf.close()
     sess.close()
